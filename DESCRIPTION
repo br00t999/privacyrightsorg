@@ -8,4 +8,4 @@ Maintainer: Peter Taylor <dev@taypeinternational.com>
 Description: An R package to make data from privacyrights.org fantastic breach database more accessible by downloading it, parsing it and returning it as a data.frame object
 License: GNU GENERAL PUBLIC LICENSE Version 3
 LazyData: TRUE
-Imports: RColorBrewer, XML, data.table, httr, rvest, stringr, zoo
+Imports: RColorBrewer, XML, data.table, httr, rvest, stringr, zoo, wordcloud

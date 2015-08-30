@@ -173,3 +173,23 @@ breaches.entity.timeseries.plot <- function(breaches = privacyrightsorg::breache
   legend('topleft', legend = colnames(tbl), fill = pal, bty = 'n', 
          ncol = ncol(tbl) / 2 + 1, cex = 0.6)
 }
+
+#' breaches.description.wordcloud
+#' @name breaches.description.wordcloud
+#' @description Create wordlcoud with most commonly occurring breach description words
+#' @param breaches data.frame containing privacyrights.org breach database
+#' @param random.seed seed for reproducibility default 1234
+#' @param min.freq minimum word frequency default 50
+#' @importFrom wordcloud wordcloud
+#' @import RColorBrewer
+#' @export
+#' @return plot
+breaches.description.wordcloud <- function(breaches = privacyrightsorg::breaches,
+                                           random.seed = 1234,
+                                           min.freq = 50) {
+  message('Please be patient, this could take a while!')
+  set.seed(random.seed)
+  pal <- brewer.pal(12, 'Paired')
+  p <- wordcloud(breaches$description, min.freq = min.freq, random.order = FALSE, colors = pal)
+  p
+}
