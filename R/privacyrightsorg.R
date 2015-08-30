@@ -111,3 +111,65 @@ refresh.data <- function(data.file = file.path(system.file(c('inst', 'extdata'),
   # return breaches db to caller
   breaches
 }
+
+#' breaches.timeseries.plot
+#' @name breaches.timeseries.plot
+#' @description Plot count of breaches as a monthly time series
+#' @param breaches data.frame containing privacyrights.org breach database
+#' @import zoo RColorBrewer
+#' @export
+#' @return plot
+breaches.timeseries.plot <- function(breaches = privacyrightsorg::breaches) {
+  tbl <- tapply(breaches$date, as.yearmon(breaches$date), length)
+  tbl <- zoo(tbl, order.by = as.yearmon(names(tbl)))
+  pal <- brewer.pal(3, 'Paired')[ 2 ]
+  p <- plot(tbl, type = 'l', lwd = 3, bty = 'n', main = 'Breaches per month', 
+            xlab = 'date', ylab = 'breaches', col = pal)
+  p
+}
+
+#' breaches.type.timeseries.plot
+#' @name breaches.type.timeseries.plot
+#' @description Plot count of breaches by breach type as a monthly time series
+#' @param breaches data.frame containing privacyrights.org breach database
+#' @import zoo RColorBrewer
+#' @export
+#' @return plot
+breaches.type.timeseries.plot <- function(breaches = privacyrightsorg::breaches) {
+  tbl <- tapply(breaches$date, list(as.yearmon(breaches$date), breaches$breach.type), length)
+  tbl <- apply(tbl, 2, function(x) { 
+    x[ which(is.na(x)) ] <- 0
+    x
+  })
+  tbl <- zoo(tbl, order.by = as.yearmon(rownames(tbl)))
+  tbl <- tbl[ , order(colMeans(tbl, na.rm = TRUE), decreasing = TRUE) ]
+  pal <- brewer.pal(12, 'Paired')[ 1:ncol(tbl) ]
+  plot(tbl, plot.type = 'single', col = pal, type = 'l', lwd = 2, 
+       main = 'Breaches by type with time', bty = 'n', ylab = 'breaches', 
+       xlab = 'date')
+  legend('topleft', legend = colnames(tbl), fill = pal, bty = 'n', 
+         ncol = ncol(tbl) / 2, cex = 0.6)
+}
+
+#' breaches.entity.timeseries.plot
+#' @name breaches.entity.timeseries.plot
+#' @description Plot count of breaches by entity type as a monthly time series
+#' @param breaches data.frame containing privacyrights.org breach database
+#' @import zoo RColorBrewer
+#' @export
+#' @return plot
+breaches.entity.timeseries.plot <- function(breaches = privacyrightsorg::breaches) {
+  tbl <- tapply(breaches$date, list(as.yearmon(breaches$date), breaches$entity.type), length)
+  tbl <- apply(tbl, 2, function(x) { 
+    x[ which(is.na(x)) ] <- 0
+    x
+  })
+  tbl <- zoo(tbl, order.by = as.yearmon(rownames(tbl)))
+  tbl <- tbl[ , order(colMeans(tbl, na.rm = TRUE), decreasing = TRUE) ]
+  pal <- brewer.pal(12, 'Paired')[ 1:ncol(tbl) ]
+  plot(tbl, plot.type = 'single', col = pal, type = 'l', lwd = 2, 
+       main = 'Breaches by entity type with time', bty = 'n', ylab = 'breaches', 
+       xlab = 'date')
+  legend('topleft', legend = colnames(tbl), fill = pal, bty = 'n', 
+         ncol = ncol(tbl) / 2 + 1, cex = 0.6)
+}

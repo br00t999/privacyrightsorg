@@ -8,11 +8,11 @@
 #' @name breaches
 #' @usage data('breaches')
 #'
-#' @format An object of class \code{"cross"}; see \code{\link[qtl]{read.cross}}.
+#' @format An object of class \code{"data.frame"};
 #'
 #' @keywords datasets
 #'
-#' @references \href{https://www.privacyrights.org/data-breach-FAQ}
+#' @references \href{https://www.privacyrights.org/data-breach-FAQ}{Data breach FAQ}
 #'
 #' @source \href{https://www.privacyrights.org/data-breach}{Chronology of Data Breaches Security Breaches 2005 - Present}
 #'

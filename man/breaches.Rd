@@ -4,7 +4,7 @@
 \name{breaches}
 \alias{breaches}
 \title{privacyrights.org breach database}
-\format{An object of class \code{"cross"}; see \code{\link[qtl]{read.cross}}.}
+\format{An object of class \code{"data.frame"};}
 \source{
 \href{https://www.privacyrights.org/data-breach}{Chronology of Data Breaches Security Breaches 2005 - Present}
 }
@@ -16,11 +16,11 @@ Data from the privacyrights.org breach database in data.frame
 format
 }
 \examples{
-breaches <- privacyrightsorg::breaches
+data('breaches')
 summary(breaches)
 }
 \references{
-\href{https://www.privacyrights.org/data-breach-FAQ}
+\href{https://www.privacyrights.org/data-breach-FAQ}{Data breach FAQ}
 }
 \keyword{datasets}
 
