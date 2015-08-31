@@ -89,8 +89,9 @@ refresh.data <- function(data.file = file.path(system.file(c('inst', 'extdata'),
   if(download.data) {
     url <- 'http://privacyrights.org/data-breach?title='
     # get page count
-    links <- xpathApply(content(GET(url)), '//a')
-    max.page <- str_extract(xmlGetAttr(links[[ which(str_detect(lapply(links, xmlValue), '^last')) ]], 'href'), '[0-9]+')
+    pages <- xpathApply(content(GET(url)), '//a')
+    pages <- pages[[ which(str_detect(lapply(pages, xmlValue), '^last')) ]]
+    max.page <- str_extract(xmlGetAttr(pages, 'href'), '[0-9]+')
     # create list of urls to download
     urls <- paste0('http://privacyrights.org/data-breach?title=&page=', 1:max.page)
     urls <- c(url, urls)
