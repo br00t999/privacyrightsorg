@@ -21,25 +21,29 @@ parse.page <- function(pg) {
     name <- unname(unlist(lapply(id, '[', 1)))
     location <- unname(unlist(lapply(id, '[', 2)))
     # get entity type
-    entity <- str_trim(lapply(html_nodes(html, '.data-breach-table > tbody:nth-child(2) > tr > td:nth-child(3)'), xmlValue))
+    entity <- str_trim(lapply(html_nodes(html, '.data-breach-table > tbody:nth-child(2) > tr > td:nth-child(3)'), 
+                              xmlValue))
     # get breach type
-    type <- str_trim(lapply(html_nodes(html, '.data-breach-table > tbody:nth-child(2) > tr > td:nth-child(4)'), xmlValue))
+    type <- str_trim(lapply(html_nodes(html, '.data-breach-table > tbody:nth-child(2) > tr > td:nth-child(4)'), 
+                            xmlValue))
     # get number of records compromised
-    records <- str_trim(lapply(html_nodes(html, '.data-breach-table > tbody:nth-child(2) > tr > td:nth-child(5)'), xmlValue))
+    records <- str_trim(lapply(html_nodes(html, '.data-breach-table > tbody:nth-child(2) > tr > td:nth-child(5)'), 
+                               xmlValue))
     # get breach description and source links
-    info <- html_nodes(html, '.data-breach-table > tbody:nth-child(2) > tr > td:nth-child(1)')[ seq(2, 150, 3) ]
+    info <- html_nodes(html, '.data-breach-table > tbody:nth-child(2) > tr > td:nth-child(1)')
+    info <- info[ seq(2, 150, 3) ] # second row of every record has description + source links
     info <- lapply(info, html_nodes, 'p')
     info <- lapply(info, function(x) lapply(x, xmlValue))
     info <- lapply(info, unlist)
     info <- lapply(info, str_replace_all, '\\s+', ' ')
     # we will need to re-work this session to get the real href for the more information
     # links rather than the sometimes-truncated link text we currently pull out of the html
-    more.info <- lapply(info, str_extract_all, 'More Information\\:.*')
-    more.info <- lapply(more.info, unlist)
-    more.info <- lapply(more.info, str_replace_all, 'More Information\\:', '')
-    more.info <- lapply(more.info, str_trim)
-    more.info <- lapply(more.info, paste0, collapse = '\n')
-    more.info <- unlist(more.info)
+    source.links <- lapply(info, str_extract_all, 'More Information\\:.*')
+    source.links <- lapply(source.links, unlist)
+    source.links <- lapply(source.links, str_replace_all, 'More Information\\:', '')
+    source.links <- lapply(source.links, str_trim)
+    source.links <- lapply(source.links, paste0, collapse = '\n')
+    source.links <- unlist(source.links)
     idx <- lapply(lapply(lapply(info, str_detect, 'More Information\\:'), '!'), which)
     info <- lapply(1:length(info), function(x) {
       info[[ x ]][ unlist(idx[ x ])]
@@ -48,14 +52,15 @@ parse.page <- function(pg) {
     info <- lapply(info, paste0, collapse = '\n')
     info <- unlist(info)
     # get breach reporter
-    info.source <- html_nodes(html, '.data-breach-table > tbody:nth-child(2) > tr > td:nth-child(1)')[ seq(3, 150, 3)]
+    info.source <- html_nodes(html, '.data-breach-table > tbody:nth-child(2) > tr > td:nth-child(1)')
+    info.source <- info.source[ seq(3, 150, 3) ] # 3rd row of each record has reporter
     info.source <- str_trim(unlist(lapply(lapply(info.source, xmlToList), '[', 5)))
     info.source <- info.source[ which(str_detect(info.source, '[^0-9]')) ]
     print(dates)
     # put it all together into a data.frame
     df <- data.frame(date = dates, name = name, location = location, 
                      entity.type = entity, breach.type = type, records.compromised = records, 
-                     description = info, info.links = more.info, info.source = info.source)    
+                     description = info, source.links = source.links, info.source = info.source)    
     df
   })
   df
@@ -85,8 +90,7 @@ refresh.data <- function(data.file = file.path(system.file(c('inst', 'extdata'),
     url <- 'http://privacyrights.org/data-breach?title='
     # get page count
     links <- xpathApply(content(GET(url)), '//a')
-    max.page <- str_extract(xmlGetAttr(links[[ which(str_detect(lapply(links, xmlValue), 
-                                                                '^last')) ]], 'href'), '[0-9]+')
+    max.page <- str_extract(xmlGetAttr(links[[ which(str_detect(lapply(links, xmlValue), '^last')) ]], 'href'), '[0-9]+')
     # create list of urls to download
     urls <- paste0('http://privacyrights.org/data-breach?title=&page=', 1:max.page)
     urls <- c(url, urls)
