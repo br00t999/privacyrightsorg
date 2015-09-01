@@ -2,6 +2,7 @@
 
 export(breaches.description.wordcloud)
 export(breaches.entity.timeseries.plot)
+export(breaches.records.timeseries.plot)
 export(breaches.timeseries.plot)
 export(breaches.type.timeseries.plot)
 export(refresh.data)

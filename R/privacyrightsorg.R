@@ -140,6 +140,22 @@ breaches.timeseries.plot <- function(breaches = privacyrightsorg::breaches) {
   p
 }
 
+#' breaches.records.timeseries.plot
+#' @name breaches.records.timeseries.plot
+#' @description Plot count of records breached as a monthly time series
+#' @param breaches data.frame containing privacyrights.org breach database
+#' @import zoo RColorBrewer
+#' @export
+#' @return plot
+breaches.records.timeseries.plot <- function(breaches = privacyrightsorg::breaches) {
+  tbl <- tapply(breaches$records.used.for.total, as.yearmon(breaches$date), sum)
+  tbl <- zoo(tbl, order.by = as.yearmon(names(tbl)))
+  pal <- brewer.pal(3, 'Paired')[ 2 ]
+  p <- plot(tbl, type = 'l', lwd = 3, bty = 'n', main = 'Breached records per month', 
+            xlab = 'date', ylab = 'records', col = pal)
+  p
+}
+
 #' breaches.type.timeseries.plot
 #' @name breaches.type.timeseries.plot
 #' @description Plot count of breaches by breach type as a monthly time series
