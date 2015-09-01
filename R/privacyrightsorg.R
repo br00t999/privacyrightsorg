@@ -59,6 +59,7 @@ parse.page <- function(pg) {
     records.used <- html_nodes(html, '.data-breach-table > tbody:nth-child(2) > tr > td:nth-child(2) > small > em')
     records.used <- str_extract(lapply(records.used, xmlValue), '[0-9]+(,[0-9]+)*')
     records.used <- str_replace_all(records.used, '[^0-9]', '')
+    records.used <- as.numeric(records.used)
     # put it all together into a data.frame
     df <- data.frame(date = dates, name = name, location = location, 
                      entity.type = entity, breach.type = type, records.compromised = records,
@@ -217,16 +218,7 @@ breaches.description.wordcloud <- function(breaches = privacyrightsorg::breaches
 #   pie(tbl, labels = names(tbl), cex = 0.6, radius = 0.8)
 # }
 
-# breaches <- privacyrightsorg::breaches
-# records.compromised <- lapply(str_extract_all(breaches$records.compromised, 
-#                                                          '[0-9]+(,[0-9]+)* '), 
-#                                          paste0, collapse = '')
-# records.compromised <- lapply(records.compromised, str_replace_all, ',', '') 
-# records.compromised <- str_trim(records.compromised)
-# records.compromised <- unlist(records.compromised)
-# records.compromised <- str_split(records.compromised, ' ')
-# records.compromised <- lapply(records.compromised, '[', 1)
-#   
-# hist(records.compromised)
-# breaches[ which(records.compromised > 1e11), ]
-
+breaches <- privacyrightsorg::breaches
+records.used.for.total <- as.numeric(breaches$records.used.for.total)
+hist()
+sum
