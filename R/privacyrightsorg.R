@@ -36,13 +36,12 @@ parse.page <- function(pg) {
     info <- lapply(info, function(x) lapply(x, xmlValue))
     info <- lapply(info, unlist)
     info <- lapply(info, str_replace_all, '\\s+', ' ')
-    # we will need to re-work this session to get the real href for the more information
-    # links rather than the sometimes-truncated link text we currently pull out of the html
-    source.links <- lapply(info, str_extract_all, 'More Information\\:.*')
-    source.links <- lapply(source.links, unlist)
-    source.links <- lapply(source.links, str_replace_all, 'More Information\\:', '')
-    source.links <- lapply(source.links, str_trim)
-    source.links <- lapply(source.links, paste0, collapse = '\n')
+    # get source links links
+    source.links <- html_nodes(html, '.data-breach-table > tbody:nth-child(2) > tr > td:nth-child(1)')
+    source.links <- source.links[ seq(2, 150, 3) ] # second row of every record has description + source links
+    source.links <- lapply(source.links, html_nodes, 'a')
+    source.links <- lapply(source.links, function(x) xmlApply(x, xmlGetAttr, 'href'))
+    source.links <- lapply(source.links, paste0, collapse = ', ')
     source.links <- unlist(source.links)
     idx <- lapply(lapply(lapply(info, str_detect, 'More Information\\:'), '!'), which)
     info <- lapply(1:length(info), function(x) {
@@ -198,3 +197,18 @@ breaches.description.wordcloud <- function(breaches = privacyrightsorg::breaches
   p <- wordcloud(breaches$description, min.freq = min.freq, random.order = FALSE, colors = pal)
   p
 }
+
+# #' breaches.info.source.plot
+# #' @name breaches.info.source.plot
+# #' @description Create barplot of info sources
+# #' @param breaches data.frame containing privacyrights.org breach database
+# #' @param random.seed seed for reproducibility default 1234
+# #' @param min.freq minimum word frequency default 1
+# #' @import RColorBrewer
+# #' @export
+# #' @return plot
+# breaches.info.source.plot <- function(breaches = privacyrightsorg::breaches) {
+#   pal <- brewer.pal(12, 'Paired')
+#   tbl <- sort(prop.table(table(breaches$info.source)))
+#   pie(tbl, labels = names(tbl), cex = 0.6, radius = 0.8)
+# }
