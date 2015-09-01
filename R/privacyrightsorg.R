@@ -218,7 +218,7 @@ breaches.description.wordcloud <- function(breaches = privacyrightsorg::breaches
 #   pie(tbl, labels = names(tbl), cex = 0.6, radius = 0.8)
 # }
 
-breaches <- privacyrightsorg::breaches
-records.used.for.total <- as.numeric(breaches$records.used.for.total)
-hist()
-sum
+# breaches <- privacyrightsorg::breaches
+# records.used.for.total <- as.numeric(breaches$records.used.for.total)
+# hist()
+# sum
