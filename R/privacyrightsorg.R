@@ -117,6 +117,9 @@ refresh.data <- function(data.file = file.path(system.file(c('inst', 'extdata'),
   good <- which(lapply(breaches, class) != 'try-error')
   breaches <- breaches[ good ]
   breaches <- data.frame(rbindlist(breaches))
+  breaches$records.used.for.total <- as.numeric(as.character(breaches$records.used.for.total))
+  breaches$description <- as.character(breaches$description)
+  breaches$source.links <- as.character(breaches$source.links)
   # return breaches db to caller
   breaches
 }
@@ -217,8 +220,3 @@ breaches.description.wordcloud <- function(breaches = privacyrightsorg::breaches
 #   tbl <- sort(prop.table(table(breaches$info.source)))
 #   pie(tbl, labels = names(tbl), cex = 0.6, radius = 0.8)
 # }
-
-# breaches <- privacyrightsorg::breaches
-# records.used.for.total <- as.numeric(breaches$records.used.for.total)
-# hist()
-# sum
