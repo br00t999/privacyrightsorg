@@ -9,30 +9,56 @@
 #' info.source)
 parse.page <- function(pg) {
   html <- htmlParse(as.character(pg))
-  df <- try(expr = {
-    # get breach date
-    dates <- html_nodes(html, '.data-breach-table > tbody:nth-child(2) > tr > td > span')
-    dates <- unlist(lapply(dates, xmlValue))
-    dates <- as.Date(dates, format = '%B %d, %Y')
-    dates <- dates[ which(!is.na(dates)) ]
-    # get victim name and location 
-    id <- html_nodes(html, '.data-breach-table > tbody:nth-child(2) > tr > td > strong')
-    id <- lapply(lapply(id, xmlToList), unlist)
-    name <- unname(unlist(lapply(id, '[', 1)))
-    location <- unname(unlist(lapply(id, '[', 2)))
-    # get entity type
-    entity <- str_trim(lapply(html_nodes(html, '.data-breach-table > tbody:nth-child(2) > tr > td:nth-child(3)'), 
-                              xmlValue))
-    # get breach type
-    type <- str_trim(lapply(html_nodes(html, '.data-breach-table > tbody:nth-child(2) > tr > td:nth-child(4)'), 
+  
+  # get victim name and location 
+  id <- html_nodes(html, '.data-breach-table > tbody:nth-child(2) > tr > td > strong')
+  id <- lapply(lapply(id, xmlToList), unlist)
+  name <- unname(unlist(lapply(id, '[', 1)))
+  location <- unname(unlist(lapply(id, '[', 2)))
+  
+  # get breach date
+  dates <- html_nodes(html, '.data-breach-table > tbody:nth-child(2) > tr > td > span')
+  dates <- unlist(lapply(dates, xmlValue))
+  dates <- as.Date(dates, format = '%B %d, %Y')
+  dates <- dates[ which(!is.na(dates)) ]
+  
+  # get entity type
+  entity <- str_trim(lapply(html_nodes(html, '.data-breach-table > tbody:nth-child(2) > tr > td:nth-child(3)'), 
                             xmlValue))
-    # get number of records compromised
-    records <- str_trim(lapply(html_nodes(html, '.data-breach-table > tbody:nth-child(2) > tr > td:nth-child(5)'), 
-                               xmlValue))
-    # get breach description and source links
-    info <- html_nodes(html, '.data-breach-table > tbody:nth-child(2) > tr > td:nth-child(1)')
-    info <- info[ seq(2, 150, 3) ] # second row of every record has description + source links
-    info <- lapply(info, html_nodes, 'p')
+  # get breach type
+  type <- str_trim(lapply(html_nodes(html, '.data-breach-table > tbody:nth-child(2) > tr > td:nth-child(4)'), 
+                          xmlValue))
+  
+  # get number of records compromised
+  records <- str_trim(lapply(html_nodes(html, '.data-breach-table > tbody:nth-child(2) > tr > td:nth-child(5)'), 
+                             xmlValue))
+  
+  # get breach description and source links
+  info <- html_nodes(html, '.data-breach-table > tbody:nth-child(2) > tr > td:nth-child(1)')
+  info <- info[ seq(2, 150, 3) ] # second row of every record has description + source links
+  # here is where we error out if we have an empty record
+  info <- try(lapply(info, html_nodes, 'p'))
+  if(class(info) == 'try-error') {
+    # this is one of those weird empty records with only a breach name and source
+    
+    # fix missing dates
+    if(length(dates) < length(name)) dates <- c(dates, rep(NA, length(name) - length(dates)))
+    
+    # get records used for total
+    records.used <- html_nodes(html, '.data-breach-table > tbody:nth-child(2) > tr > td:nth-child(2) > small > em')
+    records.used <- str_extract(lapply(records.used, xmlValue), '[0-9]+(,[0-9]+)*')
+    records.used <- str_replace_all(records.used, '[^0-9]', '')
+    records.used <- as.numeric(records.used)
+    records[ which(records.used == '') ] <- NA
+    
+    df <- data.frame(date = dates, name = name, location = location, 
+                     entity.type = entity, breach.type = type, records.compromised = records,
+                     records.used.for.total = records.used, 
+                     description = rep(NA, length(name)), source.links = rep(NA, length(name)), 
+                     info.source = rep(NA, length(name)))    
+    return(df)
+  } else {
+    # normal record
     info <- lapply(info, function(x) lapply(x, xmlValue))
     info <- lapply(info, unlist)
     info <- lapply(info, str_replace_all, '\\s+', ' ')
@@ -65,9 +91,8 @@ parse.page <- function(pg) {
                      entity.type = entity, breach.type = type, records.compromised = records,
                      records.used.for.total = records.used, description = info, source.links = source.links, 
                      info.source = info.source)    
-    df
-  })
-  df
+    return(df)
+  }
 }
 
 #' refresh.data
@@ -114,8 +139,6 @@ refresh.data <- function(data.file = file.path(system.file(c('inst', 'extdata'),
   }
   # now parse all pages
   breaches <- mclapply(pgs, parse.page)
-  good <- which(lapply(breaches, class) != 'try-error')
-  breaches <- breaches[ good ]
   breaches <- data.frame(rbindlist(breaches))
   breaches$records.used.for.total <- as.numeric(as.character(breaches$records.used.for.total))
   breaches$description <- as.character(breaches$description)
