@@ -3,7 +3,7 @@
 \docType{data}
 \name{breaches}
 \alias{breaches}
-\title{privacyrights.org breach database}
+\title{Chronology of Data Breaches database}
 \format{An object of class \code{"data.frame"};}
 \source{
 \href{https://www.privacyrights.org/data-breach}{Chronology of Data Breaches Security Breaches 2005 - Present}
@@ -13,7 +13,49 @@ data('breaches')
 }
 \description{
 Data from the privacyrights.org breach database in data.frame
-format
+}
+\details{
+data.frame with the following fields:
+
+date: Date date of entry
+
+name: character Name of entity affected by the breach
+
+location: character Location of the entity affected by the breach
+
+entity.type: factor Organization type
+\itemize{
+  \item BSO - Businesses - Other
+  \item BSF - Businesses - Financial and Insurance Services
+  \item BSR - Businesses - Retail/Merchant
+  \item EDU - Educational Institutions
+  \item GOV - Government and Military
+  \item MED - Healthcare - Medical Providers
+  \item NGO - Nonprofit Organizations
+}
+
+breach.type: factor Types of breaches
+
+\itemize{
+  \item Unintended disclosure (DISC) - Sensitive information posted publicly on a website, mishandled or sent to the wrong party via email, fax or mail.
+  \item Hacking or malware (HACK) - Electronic entry by an outside party, malware and spyware.
+  \item Payment Card Fraud (CARD) - Fraud involving debit and credit cards that is not accomplished via hacking. For example, skimming devices at point-of-service terminals.
+  \item Insider ( INSD) - Someone with legitimate access intentionally breaches information - such as an employee or contractor.
+  \item Physical loss (PHYS) - Lost, discarded or stolen non-electronic records, such as paper documents
+  \item Portable device (PORT) - Lost, discarded or stolen laptop, PDA, smartphone, portable memory device, CD, hard drive, data tape, etc
+  \item #' Stationary device (STAT) - Lost, discarded or stolen stationary electronic device such as a computer or server not designed for mobility.
+  \item #' Unknown or other (UNKN)
+}
+
+records.compromised: character description of magnitude of breach in "records"
+
+records.used.for.total: numeric number of records from this incident used to calculate total "records" breached
+
+description: character Description of the incident + relevant updates
+
+source.links: character Comma-separeated list of urls relevant to the incident
+
+info.source: factor Source of incident data
 }
 \examples{
 data('breaches')
